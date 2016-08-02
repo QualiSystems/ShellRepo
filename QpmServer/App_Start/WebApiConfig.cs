@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Net.Http.Headers;
 using System.Web.Http;
 
-namespace QpmServer
+namespace ShellRepo
 {
     public static class WebApiConfig
     {
@@ -14,11 +12,12 @@ namespace QpmServer
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+
+            config.Routes.MapHttpRoute("DefaultApi", 
+                "api/{controller}/{id}", 
+                new {id = RouteParameter.Optional}
+                );
         }
     }
 }

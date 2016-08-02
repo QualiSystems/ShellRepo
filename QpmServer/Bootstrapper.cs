@@ -1,21 +1,12 @@
 ﻿using System.Reflection;
-using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 
-namespace QpmServer
+namespace ShellRepo
 {
     public class Bootstrapper
     {
-        public static void Init()
-        {
-            var bootstrapper = new Bootstrapper();
-            var container = bootstrapper.CreateContainer();
-            var autofacWebApiDependencyResolver = new AutofacWebApiDependencyResolver(container);
-            GlobalConfiguration.Configuration.DependencyResolver = autofacWebApiDependencyResolver;
-        }
-
-        private readonly IContainer _container;
+        private readonly IContainer container;
 
         public Bootstrapper()
         {
@@ -23,20 +14,25 @@ namespace QpmServer
 
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
-            builder.RegisterAssemblyTypes(typeof(Bootstrapper).Assembly)
+            builder.RegisterAssemblyTypes(typeof (Bootstrapper).Assembly)
                 .AsImplementedInterfaces();
 
-            _container = builder.Build();
+            container = builder.Build();
         }
 
-        public IContainer CreateContainer()
+        public IContainer GetContainer()
         {
-            return _container;
+            return container;
         }
 
         public T Get<T>()
         {
-            return _container.Resolve<T>();
+            return container.Resolve<T>();
+        }
+
+        public AutofacWebApiDependencyResolver GetDependencyResolver()
+        {
+            return new AutofacWebApiDependencyResolver(container);
         }
     }
 }

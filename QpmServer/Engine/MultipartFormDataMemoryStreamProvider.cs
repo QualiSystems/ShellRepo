@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace QpmServer.Controllers
+namespace ShellRepo.Controllers
 {
     public class MultipartFormDataMemoryStreamProvider : MultipartMemoryStreamProvider
     {
