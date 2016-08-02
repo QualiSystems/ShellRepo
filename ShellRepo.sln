@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QpmServer", "QpmServer\QpmServer.csproj", "{BC2B5D20-A6EB-495D-851A-63B9C03B5E20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo", "QpmServer\ShellRepo.csproj", "{BC2B5D20-A6EB-495D-851A-63B9C03B5E20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QpmServer.Tests", "QpmServer.Tests\QpmServer.Tests.csproj", "{85D5BEDF-7DAA-4495-B795-55121971EDB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo.Tests", "QpmServer.Tests\ShellRepo.Tests.csproj", "{85D5BEDF-7DAA-4495-B795-55121971EDB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
