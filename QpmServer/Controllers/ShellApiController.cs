@@ -17,21 +17,16 @@ namespace ShellRepo.Controllers
             this.shellEntityRepository = shellEntityRepository;
         }
 
-        //[HttpGet]
-        //public IHttpActionResult Get()
-        //{
-        //    return Json("Ok");
-        //}
-
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("list/{shellName}")]
+        [Route("api/shell/list/{shellName}")]
         public IHttpActionResult Get(string shellName)
         {
             return Json(shellEntityRepository.Find(shellName));
         }
 
         [HttpPost]
+        [Route("api/shell/publish")]
         public async Task<HttpResponseMessage> Publish()
         {
             if (!Request.Content.IsMimeMultipartContent())

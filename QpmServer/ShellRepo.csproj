@@ -47,10 +47,6 @@
       <HintPath>..\packages\Autofac.WebApi2.3.4.0\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ConfigReader, Version=1.2.0.0, Culture=neutral, PublicKeyToken=941953f68b144b0a, processorArchitecture=MSIL">
-      <HintPath>..\packages\ConfigReader.1.2\lib\net40\ConfigReader.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="DataAnnotationsValidator, Version=1.0.0.1, Culture=neutral, PublicKeyToken=cd9c89f8de08f74c, processorArchitecture=MSIL">
       <HintPath>..\packages\DataAnnotationsValidator.1.0.0.1\lib\net40\DataAnnotationsValidator.dll</HintPath>
       <Private>True</Private>
