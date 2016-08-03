@@ -6,9 +6,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ShellRepo.Common;
 using ShellRepo.Engine;
 using ShellRepo.Models;
 using Toscana;
+using Toscana.Common;
 using Toscana.Exceptions;
 
 namespace ShellRepo.Controllers
@@ -26,12 +28,18 @@ namespace ShellRepo.Controllers
 
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("api/shell/{shellName}/{version}")]
-        public IHttpActionResult List(string shellName, Version version = null)
+        [Route("api/shell/list/{shellName}/{version?}")]
+        public IHttpActionResult List(string shellName, string version = null)
         {
             try
             {
-                return Json(shellEntityRepository.Find(shellName, version).Select(s=>new ShellEntity
+                Version versionObject = null;
+                if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
+                {
+                    return BadRequest($"Invalid version provided '{version}'");
+                }
+
+                return Json(shellEntityRepository.Find(shellName, versionObject).Select(s=>new ShellEntity
                 {
                     CreatedBy = s.CreatedBy,
                     Description = s.Description,
@@ -74,6 +82,7 @@ namespace ShellRepo.Controllers
             }
 
             var fileStreamKeyValue = provider.FileStreams.Single();
+            var content = fileStreamKeyValue.Value.StreamToByteArray();
 
             ToscaCloudServiceArchive toscaCloudServiceArchive;
             try
@@ -93,9 +102,9 @@ namespace ShellRepo.Controllers
                     Name = Path.GetFileNameWithoutExtension(fileStreamKeyValue.Key),
                     Version = toscaCloudServiceArchive.ToscaMetadata.CsarVersion,
                     CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
-                    Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description
+                    Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description,
+                    Content = content
                 });
-
             }
             catch (Exception exception)
             {
@@ -107,10 +116,16 @@ namespace ShellRepo.Controllers
         }
 
         [HttpGet]
-        [Route("api/shell/download/{shellName}/{version}")]
-        public HttpResponseMessage Download(string shellName, Version version)
+        [Route("api/shell/download/{shellName}/{version?}")]
+        public HttpResponseMessage Download(string shellName, string version = null)
         {
-            var shellContentEntities = shellEntityRepository.Find(shellName, version);
+            Version versionObject = null;
+            if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            var shellContentEntities = shellEntityRepository.Find(shellName, versionObject);
             if (!shellContentEntities.Any())
             {
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
@@ -123,6 +138,10 @@ namespace ShellRepo.Controllers
                 Content = new ByteArrayContent(shellContentEntity.Content)
             };
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = Path.ChangeExtension(shellContentEntity.Name, ".zip")
+            };
             return result;
         }
     }
