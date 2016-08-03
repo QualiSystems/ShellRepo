@@ -8,8 +8,8 @@ namespace ShellRepo.Engine
 {
     public interface IShellEntityRepository
     {
-        void Add(ShellEntity shellEntity);
-        List<ShellEntity> Find(string shellName);
+        void Add(ShellContentEntity shellEntity);
+        List<ShellContentEntity> Find(string shellName);
     }
 
     public class ShellEntityRepository : IShellEntityRepository
@@ -24,14 +24,14 @@ namespace ShellRepo.Engine
             database = client.GetDatabase(DatabaseName);
         }
 
-        public void Add(ShellEntity shellEntity)
+        public void Add(ShellContentEntity shellEntity)
         {
             var collection = GetMongoCollection();
 
             collection.InsertOneAsync(shellEntity);
         }
 
-        public List<ShellEntity> Find(string shellName)
+        public List<ShellContentEntity> Find(string shellName)
         {
             return
                 GetMongoCollection()
@@ -39,9 +39,9 @@ namespace ShellRepo.Engine
                     .ToList();
         }
 
-        private IMongoCollection<ShellEntity> GetMongoCollection()
+        private IMongoCollection<ShellContentEntity> GetMongoCollection()
         {
-            return database.GetCollection<ShellEntity>(CollectionName);
+            return database.GetCollection<ShellContentEntity>(CollectionName);
         }
     }
 }

@@ -132,8 +132,11 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Engine\WebErrorLogger.cs" />
+    <Compile Include="Engine\LogEvent.cs" />
     <Compile Include="Engine\ShellRepoConfiguration.cs" />
     <Compile Include="Engine\MultipartFormDataMemoryStreamProvider.cs" />
+    <Compile Include="Models\ShellContentEntity.cs" />
     <Compile Include="Models\ShellEntity.cs" />
     <Compile Include="Engine\ShellEntityRepository.cs" />
     <Compile Include="Controllers\ShellApiController.cs" />

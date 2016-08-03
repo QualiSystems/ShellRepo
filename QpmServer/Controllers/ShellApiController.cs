@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,10 +14,12 @@ namespace ShellRepo.Controllers
     public class ShellApiController : ApiController
     {
         private readonly IShellEntityRepository shellEntityRepository;
+        private readonly IWebErrorLogger webErrorLogger;
 
-        public ShellApiController(IShellEntityRepository shellEntityRepository)
+        public ShellApiController(IShellEntityRepository shellEntityRepository, IWebErrorLogger webErrorLogger)
         {
             this.shellEntityRepository = shellEntityRepository;
+            this.webErrorLogger = webErrorLogger;
         }
 
         [AcceptVerbs("GET")]
@@ -24,7 +27,13 @@ namespace ShellRepo.Controllers
         [Route("api/shell/list/{shellName}")]
         public IHttpActionResult Get(string shellName)
         {
-            return Json(shellEntityRepository.Find(shellName));
+            return Json(shellEntityRepository.Find(shellName).Select(s=>new ShellEntity
+            {
+                CreatedBy = s.CreatedBy,
+                Description = s.Description,
+                Name = s.Name,
+                Version = s.Version
+            }));
         }
 
         [HttpPost]
@@ -33,6 +42,7 @@ namespace ShellRepo.Controllers
         {
             if (!Request.Content.IsMimeMultipartContent())
             {
+                webErrorLogger.LogError("Unsupported media type.");
                 return Request.CreateResponse(HttpStatusCode.UnsupportedMediaType, "Unsupported media type.");
             }
 
@@ -43,11 +53,13 @@ namespace ShellRepo.Controllers
             // Check if files are on the request.
             if (!provider.FileStreams.Any())
             {
+                webErrorLogger.LogError("No shell in request.");
                 return Request.CreateResponse(HttpStatusCode.BadRequest, "No shell in request.");
             }
 
             if (provider.FileStreams.Count > 1)
             {
+                webErrorLogger.LogError("Single shell publishing allowed.");
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Single shell publishing allowed.");
             }
 
@@ -56,10 +68,10 @@ namespace ShellRepo.Controllers
             try
             {
                 var toscaCloudServiceArchive = ToscaCloudServiceArchive.Load(fileStreamKeyValue.Value);
-                
-                shellEntityRepository.Add(new ShellEntity
+
+                shellEntityRepository.Add(new ShellContentEntity
                 {
-                    Name = fileStreamKeyValue.Key,
+                    Name = Path.GetFileName(fileStreamKeyValue.Key),
                     Version = toscaCloudServiceArchive.ToscaMetadata.CsarVersion,
                     CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
                     Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description
@@ -67,6 +79,7 @@ namespace ShellRepo.Controllers
             }
             catch (ToscaBaseException toscaBaseException)
             {
+                webErrorLogger.LogError(toscaBaseException.Message);
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, toscaBaseException.Message);
             }
 
