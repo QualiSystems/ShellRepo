@@ -36,7 +36,7 @@ namespace ShellRepo.Controllers
                 Version versionObject = null;
                 if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
                 {
-                    return BadRequest($"Invalid version provided '{version}'");
+                    return BadRequest(String.Format("Invalid version provided '{0}'", version));
                 }
 
                 return Json(shellEntityRepository.Find(shellName, versionObject).Select(s=>new ShellEntity
@@ -122,17 +122,24 @@ namespace ShellRepo.Controllers
             Version versionObject = null;
             if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
             {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                return Request.CreateResponse(HttpStatusCode.BadRequest,
+                    String.Format("Invalid version provided '{0}'", version));
             }
 
             var shellContentEntities = shellEntityRepository.Find(shellName, versionObject);
             if (!shellContentEntities.Any())
             {
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                return Request.CreateResponse(HttpStatusCode.BadRequest,
+                    String.Format("Shell not found by name '{0}' and '{1}'", shellName, version));
             }
             var latestVersion = shellContentEntities.Max(s => s.Version);
             var shellContentEntity = shellContentEntities.Single(c => c.Version == latestVersion);
 
+            return CreateHttpResponseMessage(shellContentEntity);
+        }
+
+        private static HttpResponseMessage CreateHttpResponseMessage(ShellContentEntity shellContentEntity)
+        {
             var result = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new ByteArrayContent(shellContentEntity.Content)
