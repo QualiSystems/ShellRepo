@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using ShellRepo.Controllers;
@@ -9,7 +11,7 @@ namespace ShellRepo.Engine
     public interface IShellEntityRepository
     {
         Task Add(ShellContentEntity shellEntity);
-        List<ShellContentEntity> Find(string shellName);
+        List<ShellContentEntity> Find(string shellName, Version version = null);
     }
 
     public class ShellEntityRepository : IShellEntityRepository
@@ -30,10 +32,19 @@ namespace ShellRepo.Engine
             await collection.InsertOneAsync(shellEntity);
         }
 
-        public List<ShellContentEntity> Find(string shellName)
+        public List<ShellContentEntity> Find(string shellName, Version version = null)
         {
+            Expression<Func<ShellContentEntity, bool>> expression;
+            if (version == null)
+            {
+                expression = s => s.Name == shellName;
+            }
+            else
+            {
+                expression = s => s.Name == shellName && s.Version == version;
+            }
             return
-                GetMongoCollection().FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(s=>s.Name == shellName))
+                GetMongoCollection().FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(expression))
                     .ToList();
         }
 

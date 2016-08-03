@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ShellRepo.Engine;
@@ -25,12 +26,12 @@ namespace ShellRepo.Controllers
 
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("api/shell/list/{shellName}")]
-        public IHttpActionResult List(string shellName)
+        [Route("api/shell/{shellName}/{version}")]
+        public IHttpActionResult List(string shellName, Version version = null)
         {
             try
             {
-                return Json(shellEntityRepository.Find(shellName).Select(s=>new ShellEntity
+                return Json(shellEntityRepository.Find(shellName, version).Select(s=>new ShellEntity
                 {
                     CreatedBy = s.CreatedBy,
                     Description = s.Description,
@@ -103,6 +104,26 @@ namespace ShellRepo.Controllers
             }
 
             return Request.CreateResponse(HttpStatusCode.OK, "Successfully published: " + fileStreamKeyValue.Key);
+        }
+
+        [HttpGet]
+        [Route("api/shell/download/{shellName}/{version}")]
+        public HttpResponseMessage Download(string shellName, Version version)
+        {
+            var shellContentEntities = shellEntityRepository.Find(shellName, version);
+            if (!shellContentEntities.Any())
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+            var latestVersion = shellContentEntities.Max(s => s.Version);
+            var shellContentEntity = shellContentEntities.Single(c => c.Version == latestVersion);
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(shellContentEntity.Content)
+            };
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            return result;
         }
     }
 }

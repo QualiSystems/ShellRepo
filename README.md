@@ -2,9 +2,16 @@
 
 REST API
 
-* Publish shell - POST
-http://shellrepo.apphb.com/api/shell/upload/
+* Upload
+POST http://shellrepo.apphb.com/api/shell/upload
 
-* List shells
-http://shellrepo.apphb.com/api/shell/list/{shellName}
+* List 
+GET http://shellrepo.apphb.com/api/shell/{shellName}/{version}
+
+* Download
+GET http://shellrepo.apphb.com/api/shell/download/{shellName}/{version}
+
+* Search
+GET http://shellrepo.apphb.com/api/shell/search/{text}
+
 
