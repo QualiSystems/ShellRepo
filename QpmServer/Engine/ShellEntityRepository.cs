@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using MongoDB.Driver;
+using ShellRepo.Controllers;
+using ShellRepo.Models;
 
-namespace ShellRepo.Controllers
+namespace ShellRepo.Engine
 {
     public interface IShellEntityRepository
     {

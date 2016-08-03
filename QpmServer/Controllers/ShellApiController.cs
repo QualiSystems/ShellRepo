@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ShellRepo.Engine;
+using ShellRepo.Models;
 using Toscana;
 using Toscana.Exceptions;
 
@@ -26,8 +28,8 @@ namespace ShellRepo.Controllers
         }
 
         [HttpPost]
-        [Route("api/shell/publish")]
-        public async Task<HttpResponseMessage> Publish()
+        [Route("api/shell/upload")]
+        public async Task<HttpResponseMessage> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
             {
@@ -37,14 +39,6 @@ namespace ShellRepo.Controllers
             // Read the file and form data.
             var provider = new MultipartFormDataMemoryStreamProvider();
             await Request.Content.ReadAsMultipartAsync(provider);
-
-            // Extract the fields from the form data.
-            var description = provider.FormData["description"];
-            int uploadType;
-            if (!int.TryParse(provider.FormData["uploadType"], out uploadType))
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, "Upload Type is invalid.");
-            }
 
             // Check if files are on the request.
             if (!provider.FileStreams.Any())
@@ -62,11 +56,13 @@ namespace ShellRepo.Controllers
             try
             {
                 var toscaCloudServiceArchive = ToscaCloudServiceArchive.Load(fileStreamKeyValue.Value);
+                
                 shellEntityRepository.Add(new ShellEntity
                 {
                     Name = fileStreamKeyValue.Key,
                     Version = toscaCloudServiceArchive.ToscaMetadata.CsarVersion,
-                    CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy
+                    CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
+                    Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description
                 });
             }
             catch (ToscaBaseException toscaBaseException)
