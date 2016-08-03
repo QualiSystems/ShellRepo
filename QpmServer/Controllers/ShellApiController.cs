@@ -26,7 +26,7 @@ namespace ShellRepo.Controllers
         [AcceptVerbs("GET")]
         [HttpGet]
         [Route("api/shell/list/{shellName}")]
-        public IHttpActionResult Get(string shellName)
+        public IHttpActionResult List(string shellName)
         {
             try
             {

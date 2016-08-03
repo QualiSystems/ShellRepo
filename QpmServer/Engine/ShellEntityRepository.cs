@@ -35,7 +35,7 @@ namespace ShellRepo.Engine
         {
             return
                 GetMongoCollection()
-                    .Find(a => string.Compare(a.Name, shellName, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    .Find(a => a.Name == shellName)
                     .ToList();
         }
 
