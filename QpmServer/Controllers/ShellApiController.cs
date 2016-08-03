@@ -87,9 +87,9 @@ namespace ShellRepo.Controllers
 
             try
             {
-                shellEntityRepository.Add(new ShellContentEntity
+                await shellEntityRepository.Add(new ShellContentEntity
                 {
-                    Name = Path.GetFileName(fileStreamKeyValue.Key),
+                    Name = Path.GetFileNameWithoutExtension(fileStreamKeyValue.Key),
                     Version = toscaCloudServiceArchive.ToscaMetadata.CsarVersion,
                     CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
                     Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description
