@@ -74,10 +74,19 @@ namespace ShellRepo.Controllers
 
             var fileStreamKeyValue = provider.FileStreams.Single();
 
+            ToscaCloudServiceArchive toscaCloudServiceArchive;
             try
             {
-                var toscaCloudServiceArchive = ToscaCloudServiceArchive.Load(fileStreamKeyValue.Value);
+                toscaCloudServiceArchive = ToscaCloudServiceArchive.Load(fileStreamKeyValue.Value);
+            }
+            catch (ToscaBaseException toscaBaseException)
+            {
+                webErrorLogger.LogError(toscaBaseException.Message);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, toscaBaseException.Message);
+            }
 
+            try
+            {
                 shellEntityRepository.Add(new ShellContentEntity
                 {
                     Name = Path.GetFileName(fileStreamKeyValue.Key),
@@ -85,11 +94,12 @@ namespace ShellRepo.Controllers
                     CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
                     Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description
                 });
+
             }
-            catch (ToscaBaseException toscaBaseException)
+            catch (Exception exception)
             {
-                webErrorLogger.LogError(toscaBaseException.Message);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, toscaBaseException.Message);
+                webErrorLogger.LogError(exception.Message);
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, exception.Message);
             }
 
             return Request.CreateResponse(HttpStatusCode.OK, "Successfully published: " + fileStreamKeyValue.Key);
