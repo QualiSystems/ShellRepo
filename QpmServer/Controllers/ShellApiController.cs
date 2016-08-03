@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,13 +28,21 @@ namespace ShellRepo.Controllers
         [Route("api/shell/list/{shellName}")]
         public IHttpActionResult Get(string shellName)
         {
-            return Json(shellEntityRepository.Find(shellName).Select(s=>new ShellEntity
+            try
             {
-                CreatedBy = s.CreatedBy,
-                Description = s.Description,
-                Name = s.Name,
-                Version = s.Version
-            }));
+                return Json(shellEntityRepository.Find(shellName).Select(s=>new ShellEntity
+                {
+                    CreatedBy = s.CreatedBy,
+                    Description = s.Description,
+                    Name = s.Name,
+                    Version = s.Version
+                }));
+            }
+            catch (Exception exception)
+            {
+                webErrorLogger.LogError(exception.Message);
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPost]
