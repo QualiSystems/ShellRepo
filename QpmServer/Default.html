@@ -1,17 +1,68 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Shell</title>
+    <meta charset="utf-8">
+    <title>ShellRepo</title>
+    <link rel="stylesheet" href="Styles/ShellRepo.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+    <script src="Scripts/angular.min.js"></script>
+
+    <script src="Scripts/ShellRepoApp.js"></script>
+    <script src="Scripts/ShellsService.js"></script>
+    <script src="Scripts/ShellsDashboardController.js"></script>
 </head>
-<body>
-<form name="uploadForm" enctype="multipart/form-data" method="post" action="api/shell/upload">
-    <div>
-        <label for="uploadfile">Shell to Upload</label>
-        <input type="file" id="uploadfile" name="uploadfile"/>
+<body ng-app="ShellRepoApp" ng-controller="ShellsDashboardController as sdc" ng-cloak>
+
+    <nav class="navbar navbar-default navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="http://www.quali.com/wp-content/themes/quali/images/logo.png">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <form class="form-inline" style="margin-left:25px;">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></div>
+                    <input type="text" class="form-control" placeholder="type name or description" ng-model="searchQuery">
+                    <!--<div class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></div>-->
+                </div>
+            </div>
+        </form>
+
+        <hr />
+
+        <div>
+
+            <div class="shell-tile panel panel-default" ng-repeat="shell in sdc.shells | filter:searchQuery">
+
+                <div class="panel-heading">
+                    <h3 class="panel-title">Shell <span class="label label-default">New</span></h3>
+                </div>
+                <div class="panel-body">
+                    <div class="shell-name text-uppercase">{{shell.Name}}</div>
+                    <div class="shell-version">Version: {{shell.Version.Major}}.{{shell.Version.Minor}}</div>
+                    <div class="shell-createdby">Created By: {{shell.CreatedBy}}</div>
+                    <div class="shell-description text-muted" title="{{shell.Description}}">
+                        <small>{{shell.Description}}</small>
+                    </div>
+                    <div class="shell-download" style="text-align:center;">
+                        <a href="api/shell/download/{{shell.Name}}"><small>Download</small></a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <div>
-        <input type="submit" value="Upload" />
-    </div>
-</form>
+
 </body>
 </html>

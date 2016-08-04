@@ -1,0 +1,30 @@
+﻿
+.shell-tile {
+    float: left;
+    width: 260px;
+    height: 280px;
+    margin: 25px;
+    border: solid 1px silver;
+    border-radius: 5px;
+}
+
+    .shell-tile .shell-name {
+        font-size: 30px;
+        line-height: 27px;
+        margin-top: 10px;
+    }
+
+    .shell-tile .shell-version {
+    }
+
+    .shell-tile .shell-description {
+        overflow:hidden;
+        text-overflow:ellipsis;
+        height:100px;
+        margin-top:12px;
+        line-height: 16px;
+    }
+
+    .shell-tile .shell-download {
+        margin-top: 7px;
+    }
