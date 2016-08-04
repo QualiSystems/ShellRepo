@@ -134,9 +134,9 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Common\StreamExtensions.cs" />
-    <Compile Include="Controllers\ShellContentEntityCreator.cs" />
-    <Compile Include="Controllers\ShellEntityFinder.cs" />
+    <Compile Include="Engine\ShellContentEntityCreator.cs" />
     <Compile Include="Engine\ShellEntityContentRetriever.cs" />
+    <Compile Include="Engine\ShellEntityFinder.cs" />
     <Compile Include="Engine\WebErrorLogger.cs" />
     <Compile Include="Engine\LogEvent.cs" />
     <Compile Include="Engine\ShellRepoConfiguration.cs" />
