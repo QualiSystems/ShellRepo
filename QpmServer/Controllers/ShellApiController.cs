@@ -6,24 +6,24 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ShellRepo.Common;
 using ShellRepo.Engine;
 using ShellRepo.Models;
-using Toscana;
-using Toscana.Common;
-using Toscana.Exceptions;
 
 namespace ShellRepo.Controllers
 {
     public class ShellApiController : ApiController
     {
-        private readonly IShellEntityRepository shellEntityRepository;
         private readonly IWebErrorLogger webErrorLogger;
+        private readonly IShellEntityContentRetriever shellEntityContentRetriever;
+        private readonly IShellContentEntityCreator shellContentEntityCreator;
+        private readonly IShellEntityFinder shellEntityFinder;
 
-        public ShellApiController(IShellEntityRepository shellEntityRepository, IWebErrorLogger webErrorLogger)
+        public ShellApiController(IWebErrorLogger webErrorLogger, IShellEntityContentRetriever shellEntityContentRetriever, IShellContentEntityCreator shellContentEntityCreator, IShellEntityFinder shellEntityFinder)
         {
-            this.shellEntityRepository = shellEntityRepository;
             this.webErrorLogger = webErrorLogger;
+            this.shellEntityContentRetriever = shellEntityContentRetriever;
+            this.shellContentEntityCreator = shellContentEntityCreator;
+            this.shellEntityFinder = shellEntityFinder;
         }
 
         [AcceptVerbs("GET")]
@@ -36,16 +36,12 @@ namespace ShellRepo.Controllers
                 Version versionObject = null;
                 if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
                 {
-                    return BadRequest(String.Format("Invalid version provided '{0}'", version));
+                    return BadRequest(string.Format("Invalid version provided '{0}'", version));
                 }
 
-                return Json(shellEntityRepository.Find(shellName, versionObject).Select(s=>new ShellEntity
-                {
-                    CreatedBy = s.CreatedBy,
-                    Description = s.Description,
-                    Name = s.Name,
-                    Version = s.Version
-                }));
+                var shellEntities = shellEntityFinder.FindShellEntities(shellName, versionObject);
+
+                return Json(shellEntities);
             }
             catch (Exception exception)
             {
@@ -81,38 +77,19 @@ namespace ShellRepo.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Single shell publishing allowed.");
             }
 
-            var fileStreamKeyValue = provider.FileStreams.Single();
-            var content = fileStreamKeyValue.Value.StreamToByteArray();
-
-            ToscaCloudServiceArchive toscaCloudServiceArchive;
             try
             {
-                toscaCloudServiceArchive = ToscaCloudServiceArchive.Load(fileStreamKeyValue.Value);
-            }
-            catch (ToscaBaseException toscaBaseException)
-            {
-                webErrorLogger.LogError(toscaBaseException.Message);
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, toscaBaseException.Message);
-            }
+                var fileStreamKeyValue = provider.FileStreams.Single();
 
-            try
-            {
-                await shellEntityRepository.Add(new ShellContentEntity
-                {
-                    Name = Path.GetFileNameWithoutExtension(fileStreamKeyValue.Key),
-                    Version = toscaCloudServiceArchive.ToscaMetadata.CsarVersion,
-                    CreatedBy = toscaCloudServiceArchive.ToscaMetadata.CreatedBy,
-                    Description = toscaCloudServiceArchive.EntryPointServiceTemplate.Description,
-                    Content = content
-                });
+                await shellContentEntityCreator.CreateShellContentEntity(fileStreamKeyValue.Key, fileStreamKeyValue.Value);
+
+                return Request.CreateResponse(HttpStatusCode.OK, "Successfully uploaded: " + fileStreamKeyValue.Key);
             }
             catch (Exception exception)
             {
                 webErrorLogger.LogError(exception.Message);
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, exception.Message);
             }
-
-            return Request.CreateResponse(HttpStatusCode.OK, "Successfully published: " + fileStreamKeyValue.Key);
         }
 
         [HttpGet]
@@ -123,19 +100,18 @@ namespace ShellRepo.Controllers
             if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest,
-                    String.Format("Invalid version provided '{0}'", version));
+                    string.Format("Invalid version provided '{0}'", version));
             }
 
-            var shellContentEntities = shellEntityRepository.Find(shellName, versionObject);
-            if (!shellContentEntities.Any())
+            try
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest,
-                    String.Format("Shell not found by name '{0}' and '{1}'", shellName, version));
+                var shellContentEntity = shellEntityContentRetriever.GetShellContentEntity(shellName, versionObject);
+                return CreateHttpResponseMessage(shellContentEntity);
             }
-            var latestVersion = shellContentEntities.Max(s => s.Version);
-            var shellContentEntity = shellContentEntities.Single(c => c.Version == latestVersion);
-
-            return CreateHttpResponseMessage(shellContentEntity);
+            catch (Exception exception)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, exception.Message);
+            }
         }
 
         private static HttpResponseMessage CreateHttpResponseMessage(ShellContentEntity shellContentEntity)
