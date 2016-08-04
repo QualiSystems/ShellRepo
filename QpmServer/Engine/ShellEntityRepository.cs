@@ -12,6 +12,7 @@ namespace ShellRepo.Engine
     {
         Task Add(ShellContentEntity shellEntity);
         List<ShellContentEntity> Find(string shellName, Version version = null);
+        List<ShellContentEntity> GetAll();
     }
 
     public class ShellEntityRepository : IShellEntityRepository
@@ -45,6 +46,14 @@ namespace ShellRepo.Engine
             }
             return
                 GetMongoCollection().FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(expression))
+                    .ToList();
+        }
+
+        public List<ShellContentEntity> GetAll()
+        {
+            return
+                GetMongoCollection()
+                    .FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(a => a.Name != ""))
                     .ToList();
         }
 

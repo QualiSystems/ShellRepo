@@ -50,6 +50,24 @@ namespace ShellRepo.Controllers
             }
         }
 
+        [AcceptVerbs("GET")]
+        [HttpGet]
+        [Route("api/shell/all")]
+        public IHttpActionResult GetAllList()
+        {
+            try
+            {
+                var shellEntities = shellEntityFinder.GetAll();
+
+                return Json(shellEntities);
+            }
+            catch (Exception exception)
+            {
+                webErrorLogger.LogError(exception.Message);
+                return BadRequest(exception.Message);
+            }
+        }
+
         [HttpPost]
         [Route("api/shell/upload")]
         public async Task<HttpResponseMessage> Upload()
