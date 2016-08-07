@@ -113,8 +113,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="Toscana, Version=0.0.0.73, Culture=neutral, PublicKeyToken=700c10d93642dd8a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Toscana.0.0.0.73\lib\net45\Toscana.dll</HintPath>
+    <Reference Include="Toscana, Version=0.0.0.75, Culture=neutral, PublicKeyToken=700c10d93642dd8a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Toscana.0.0.0.75\lib\net45\Toscana.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="YamlDotNet, Version=3.9.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
@@ -164,7 +164,7 @@
     <Compile Include="Models\ShellContentEntity.cs" />
     <Compile Include="Models\ShellEntity.cs" />
     <Compile Include="Engine\ShellContentEntityRepository.cs" />
-    <Compile Include="Controllers\ShellUploader.cs" />
+    <Compile Include="Controllers\ShellApiController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
