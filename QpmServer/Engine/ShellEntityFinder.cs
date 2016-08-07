@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ShellRepo.Models;
 
@@ -7,24 +8,32 @@ namespace ShellRepo.Engine
     public interface IShellEntityFinder
     {
         ShellEntity[] FindShellEntities(string shellName, Version version);
-        ShellEntity[] GetAll();
+        List<ShellEntity> GetAll();
     }
 
     public class ShellEntityFinder : IShellEntityFinder
     {
+        private readonly IShellContentEntityRepository shellContentEntityRepository;
         private readonly IShellEntityRepository shellEntityRepository;
 
-        public ShellEntityFinder(IShellEntityRepository shellEntityRepository)
+        public ShellEntityFinder(IShellContentEntityRepository shellContentEntityRepository,
+            IShellEntityRepository shellEntityRepository)
         {
+            this.shellContentEntityRepository = shellContentEntityRepository;
             this.shellEntityRepository = shellEntityRepository;
         }
 
         public ShellEntity[] FindShellEntities(string shellName, Version version)
         {
-            var shellEntities = shellEntityRepository.Find(shellName, version)
+            var shellEntities = shellContentEntityRepository.Find(shellName, version)
                 .Select(ConvertToShellEntity)
                 .ToArray();
             return shellEntities;
+        }
+
+        public List<ShellEntity> GetAll()
+        {
+            return shellEntityRepository.GetAll();
         }
 
         private static ShellEntity ConvertToShellEntity(ShellContentEntity s)
@@ -36,12 +45,6 @@ namespace ShellRepo.Engine
                 Name = s.Name,
                 Version = s.Version
             };
-        }
-
-        public ShellEntity[] GetAll()
-        {
-            return shellEntityRepository.GetAll().Select(ConvertToShellEntity)
-                .ToArray();
         }
     }
 }

@@ -50,6 +50,11 @@
                     <div class="shell-name text-uppercase">{{shell.Name}}</div>
                     <div class="shell-version">Version: {{shell.Version.Major}}.{{shell.Version.Minor}}</div>
                     <div class="shell-createdby">Created By: {{shell.CreatedBy}}</div>
+                    <div class="shell-downloads">Downloads: {{shell.DownloadCount}}</div>
+                    <div class="shell-last-published">Last Published: {{shell.LastPublished | date:'yyyy-MM-dd'}}</div>
+                    <div class="shell-license-type">License: 
+                        <a href="{{shell.LicenseUrl}}" target="blank">{{shell.LicenseType}}</a>
+                    </div>
                     <div class="shell-description text-muted" title="{{shell.Description}}">
                         <small>{{shell.Description}}</small>
                     </div>

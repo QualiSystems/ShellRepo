@@ -14,15 +14,15 @@ namespace ShellRepo.Controllers
     public class ShellApiController : ApiController
     {
         private readonly IWebErrorLogger webErrorLogger;
-        private readonly IShellEntityContentRetriever shellEntityContentRetriever;
-        private readonly IShellContentEntityCreator shellContentEntityCreator;
+        private readonly IShellEntityContentDownloader shellEntityContentDownloader;
+        private readonly IShellUploader shellUploader;
         private readonly IShellEntityFinder shellEntityFinder;
 
-        public ShellApiController(IWebErrorLogger webErrorLogger, IShellEntityContentRetriever shellEntityContentRetriever, IShellContentEntityCreator shellContentEntityCreator, IShellEntityFinder shellEntityFinder)
+        public ShellApiController(IWebErrorLogger webErrorLogger, IShellEntityContentDownloader shellEntityContentDownloader, IShellUploader shellUploader, IShellEntityFinder shellEntityFinder)
         {
             this.webErrorLogger = webErrorLogger;
-            this.shellEntityContentRetriever = shellEntityContentRetriever;
-            this.shellContentEntityCreator = shellContentEntityCreator;
+            this.shellEntityContentDownloader = shellEntityContentDownloader;
+            this.shellUploader = shellUploader;
             this.shellEntityFinder = shellEntityFinder;
         }
 
@@ -99,7 +99,7 @@ namespace ShellRepo.Controllers
             {
                 var fileStreamKeyValue = provider.FileStreams.Single();
 
-                await shellContentEntityCreator.CreateShellContentEntity(fileStreamKeyValue.Key, fileStreamKeyValue.Value);
+                await shellUploader.UploadShell(fileStreamKeyValue.Key, fileStreamKeyValue.Value);
 
                 return Request.CreateResponse(HttpStatusCode.OK, "Successfully uploaded: " + fileStreamKeyValue.Key);
             }
@@ -123,7 +123,7 @@ namespace ShellRepo.Controllers
 
             try
             {
-                var shellContentEntity = shellEntityContentRetriever.GetShellContentEntity(shellName, versionObject);
+                var shellContentEntity = shellEntityContentDownloader.DownloadShellContentEntity(shellName, versionObject);
                 return CreateHttpResponseMessage(shellContentEntity);
             }
             catch (Exception exception)

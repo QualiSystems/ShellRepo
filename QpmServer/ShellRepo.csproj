@@ -143,16 +143,19 @@
     <Content Include="Scripts\ShellRepoApp.js" />
     <Content Include="Scripts\ShellsDashboardController.js" />
     <Content Include="Scripts\ShellsService.js" />
+    <Content Include="Styles\ShellRepo.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Common\StreamExtensions.cs" />
+    <Compile Include="Engine\MongoDbClientFactory.cs" />
     <Compile Include="Engine\SearchingService.cs" />
-    <Compile Include="Engine\ShellContentEntityCreator.cs" />
-    <Compile Include="Engine\ShellEntityContentRetriever.cs" />
+    <Compile Include="Engine\ShellUploader.cs" />
+    <Compile Include="Engine\ShellEntityContentDownloader.cs" />
     <Compile Include="Engine\ShellEntityFinder.cs" />
+    <Compile Include="Engine\ShellEntityRepository.cs" />
     <Compile Include="Engine\WebErrorLogger.cs" />
     <Compile Include="Engine\LogEvent.cs" />
     <Compile Include="Engine\ShellRepoConfiguration.cs" />
@@ -160,8 +163,8 @@
     <Compile Include="Exceptions\ShellNotFoundException.cs" />
     <Compile Include="Models\ShellContentEntity.cs" />
     <Compile Include="Models\ShellEntity.cs" />
-    <Compile Include="Engine\ShellEntityRepository.cs" />
-    <Compile Include="Controllers\ShellApiController.cs" />
+    <Compile Include="Engine\ShellContentEntityRepository.cs" />
+    <Compile Include="Controllers\ShellUploader.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

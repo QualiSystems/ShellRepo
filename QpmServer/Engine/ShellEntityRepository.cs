@@ -1,65 +1,80 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using ShellRepo.Controllers;
+using ShellRepo.Exceptions;
 using ShellRepo.Models;
 
 namespace ShellRepo.Engine
 {
     public interface IShellEntityRepository
     {
-        Task Add(ShellContentEntity shellEntity);
-        List<ShellContentEntity> Find(string shellName, Version version = null);
-        List<ShellContentEntity> GetAll();
+        ShellEntity Get(ObjectId shellEntityId);
+        void IncrementDownloadCount(ObjectId objectId);
+        ShellEntity Find(string shellName);
+        void Insert(ShellEntity shellEntity);
+        void Update(ShellEntity shellEntity);
+        List<ShellEntity> GetAll();
     }
 
     public class ShellEntityRepository : IShellEntityRepository
     {
-        private const string CollectionName = "ShellEntity";
-        private readonly IMongoDatabase database;
+        private readonly IMongoDbClientFactory mongoDbClientFactory;
 
-        public ShellEntityRepository(IShellRepoConfiguration shellRepoConfiguration)
+        public ShellEntityRepository(IMongoDbClientFactory mongoDbClientFactory)
         {
-            var mongoUrl = new MongoUrl(shellRepoConfiguration.MongoConnectionString);
-            database = new MongoClient(mongoUrl).GetDatabase(mongoUrl.DatabaseName);
+            this.mongoDbClientFactory = mongoDbClientFactory;
         }
 
-        public async Task Add(ShellContentEntity shellEntity)
-        {
-            var collection = GetMongoCollection();
 
-            await collection.InsertOneAsync(shellEntity);
-        }
-
-        public List<ShellContentEntity> Find(string shellName, Version version = null)
+        public ShellEntity Get(ObjectId shellEntityId)
         {
-            Expression<Func<ShellContentEntity, bool>> expression;
-            if (version == null)
+            var shellEntities = mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .FindSync(new FilterDefinitionBuilder<ShellEntity>()
+                    .Where(s => s.Id == shellEntityId))
+                .ToList();
+            if (!shellEntities.Any())
             {
-                expression = s => s.Name == shellName;
+                throw new ShellNotFoundException(string.Format("Shell entity with Id {0} not found", shellEntityId));
             }
-            else
-            {
-                expression = s => s.Name == shellName && s.Version == version;
-            }
-            return
-                GetMongoCollection().FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(expression))
-                    .ToList();
+            return shellEntities.Single();
         }
 
-        public List<ShellContentEntity> GetAll()
+        public void IncrementDownloadCount(ObjectId objectId)
         {
-            return
-                GetMongoCollection()
-                    .FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(a => a.Name != ""))
-                    .ToList();
+            mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .FindOneAndUpdate(
+                    new FilterDefinitionBuilder<ShellEntity>().Where(s => s.Id == objectId),
+                    Builders<ShellEntity>.Update.Inc(s => s.DownloadCount, 1));
         }
 
-        private IMongoCollection<ShellContentEntity> GetMongoCollection()
+        public ShellEntity Find(string shellName)
         {
-            return database.GetCollection<ShellContentEntity>(CollectionName);
+            var shellEntities = mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .FindSync(new FilterDefinitionBuilder<ShellEntity>()
+                    .Where(s => s.Name == shellName))
+                .ToList();
+
+            return !shellEntities.Any() ? null : shellEntities.Single();
+        }
+
+        public void Insert(ShellEntity shellEntity)
+        {
+            mongoDbClientFactory.GetMongoCollection<ShellEntity>().InsertOne(shellEntity);
+        }
+
+        public void Update(ShellEntity shellEntity)
+        {
+            mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .UpdateOne(new FilterDefinitionBuilder<ShellEntity>().Where(a => a.Id == shellEntity.Id),
+                    new ObjectUpdateDefinition<ShellEntity>(shellEntity));
+        }
+
+        public List<ShellEntity> GetAll()
+        {
+            return mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .FindSync(new FilterDefinitionBuilder<ShellEntity>().Empty)
+                .ToList();
         }
     }
 }
