@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Nest;
 using ShellRepo.Models;
 
 namespace ShellRepo.Engine
@@ -9,25 +7,29 @@ namespace ShellRepo.Engine
     public interface ISearchingService
     {
         List<ShellEntity> Search(string text);
+        void Index(ShellEntity shellEntity);
     }
 
     public class SearchingService : ISearchingService
     {
-        private readonly ElasticClient client;
+        private readonly IElasticClientFactory elasticClientFactory;
 
-        public SearchingService(IShellRepoConfiguration shellRepoConfiguration)
+        public SearchingService(IElasticClientFactory elasticClientFactory)
         {
-            var settings = new ConnectionSettings(new Uri(shellRepoConfiguration.ElasticSearchUrl));
-            settings.DefaultIndex("shell");
-
-            client = new ElasticClient(settings);
+            this.elasticClientFactory = elasticClientFactory;
         }
 
         public List<ShellEntity> Search(string text)
         {
             return
-                client.Search<ShellEntity>(_ => _.From(0).Size(10).Query(q => q.Term(s => s.Name, text)))
+                elasticClientFactory.CreateElasticClient()
+                    .Search<ShellEntity>(_ => _.From(0).Size(10).Query(q => q.Term(s => s.Name, text)))
                     .Documents.ToList();
+        }
+
+        public void Index(ShellEntity shellEntity)
+        {
+            elasticClientFactory.CreateElasticClient().Index(shellEntity);
         }
     }
 }

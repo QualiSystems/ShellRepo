@@ -13,17 +13,23 @@ namespace ShellRepo.Controllers
 {
     public class ShellApiController : ApiController
     {
-        private readonly IWebErrorLogger webErrorLogger;
+        private readonly ISearchingService searchingService;
         private readonly IShellEntityContentDownloader shellEntityContentDownloader;
-        private readonly IShellUploader shellUploader;
         private readonly IShellEntityFinder shellEntityFinder;
+        private readonly IShellUploader shellUploader;
+        private readonly IWebErrorLogger webErrorLogger;
 
-        public ShellApiController(IWebErrorLogger webErrorLogger, IShellEntityContentDownloader shellEntityContentDownloader, IShellUploader shellUploader, IShellEntityFinder shellEntityFinder)
+        public ShellApiController(IWebErrorLogger webErrorLogger,
+            IShellEntityContentDownloader shellEntityContentDownloader, 
+            IShellUploader shellUploader,
+            IShellEntityFinder shellEntityFinder, 
+            ISearchingService searchingService)
         {
             this.webErrorLogger = webErrorLogger;
             this.shellEntityContentDownloader = shellEntityContentDownloader;
             this.shellUploader = shellUploader;
             this.shellEntityFinder = shellEntityFinder;
+            this.searchingService = searchingService;
         }
 
         [AcceptVerbs("GET")]
@@ -58,6 +64,24 @@ namespace ShellRepo.Controllers
             try
             {
                 var shellEntities = shellEntityFinder.GetAll();
+
+                return Json(shellEntities);
+            }
+            catch (Exception exception)
+            {
+                webErrorLogger.LogError(exception.Message);
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [AcceptVerbs("GET")]
+        [HttpGet]
+        [Route("api/shell/search/{text}")]
+        public IHttpActionResult Search(string text)
+        {
+            try
+            {
+                var shellEntities = searchingService.Search(text);
 
                 return Json(shellEntities);
             }
@@ -123,7 +147,8 @@ namespace ShellRepo.Controllers
 
             try
             {
-                var shellContentEntity = shellEntityContentDownloader.DownloadShellContentEntity(shellName, versionObject);
+                var shellContentEntity = shellEntityContentDownloader.DownloadShellContentEntity(shellName,
+                    versionObject);
                 return CreateHttpResponseMessage(shellContentEntity);
             }
             catch (Exception exception)

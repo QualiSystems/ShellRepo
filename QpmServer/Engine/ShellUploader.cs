@@ -14,14 +14,16 @@ namespace ShellRepo.Engine
 
     public class ShellUploader : IShellUploader
     {
+        private readonly ISearchingService searchingService;
         private readonly IShellContentEntityRepository shellContentEntityRepository;
         private readonly IShellEntityRepository shellEntityRepository;
 
         public ShellUploader(IShellContentEntityRepository shellContentEntityRepository,
-            IShellEntityRepository shellEntityRepository)
+            IShellEntityRepository shellEntityRepository, ISearchingService searchingService)
         {
             this.shellContentEntityRepository = shellContentEntityRepository;
             this.shellEntityRepository = shellEntityRepository;
+            this.searchingService = searchingService;
         }
 
         public async Task UploadShell(string filename, Stream archiveStream)
@@ -53,6 +55,8 @@ namespace ShellRepo.Engine
                 shellEntity.LastPublished = DateTime.UtcNow;
                 shellEntityRepository.Update(shellEntity);
             }
+
+            searchingService.Index(shellEntity);
 
             await shellContentEntityRepository.Add(new ShellContentEntity
             {

@@ -13,11 +13,6 @@ namespace ShellRepo
             config.MapHttpAttributeRoutes();
 
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
-
-            config.Routes.MapHttpRoute("DefaultApi", 
-                "api/{controller}/{id}", 
-                new {id = RouteParameter.Optional}
-                );
         }
     }
 }

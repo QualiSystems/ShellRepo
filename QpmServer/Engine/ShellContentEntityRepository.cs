@@ -12,8 +12,6 @@ namespace ShellRepo.Engine
     {
         Task Add(ShellContentEntity shellEntity);
         List<ShellContentEntity> Find(string shellName, Version version = null);
-        List<ShellContentEntity> GetAll();
-        void Update(ShellContentEntity shellContentEntity);
         void IncrementDownloadCount(ObjectId shellContentEntityId);
     }
 
@@ -48,20 +46,6 @@ namespace ShellRepo.Engine
                 .FindSync(new FilterDefinitionBuilder<ShellContentEntity>()
                     .Where(expression))
                 .ToList();
-        }
-
-        public List<ShellContentEntity> GetAll()
-        {
-            return mongoDbClientFactory.GetMongoCollection<ShellContentEntity>()
-                .FindSync(new FilterDefinitionBuilder<ShellContentEntity>().Where(a => a.Name != ""))
-                .ToList();
-        }
-
-        public void Update(ShellContentEntity shellContentEntity)
-        {
-            mongoDbClientFactory.GetMongoCollection<ShellContentEntity>()
-                .UpdateOne(new FilterDefinitionBuilder<ShellContentEntity>().Where(a => a.Id == shellContentEntity.Id),
-                    new ObjectUpdateDefinition<ShellContentEntity>(shellContentEntity));
         }
 
         public void IncrementDownloadCount(ObjectId shellContentEntityId)

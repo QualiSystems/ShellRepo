@@ -63,11 +63,11 @@ namespace ShellRepo.Engine
             mongoDbClientFactory.GetMongoCollection<ShellEntity>().InsertOne(shellEntity);
         }
 
-        public void Update(ShellEntity shellEntity)
+        public async void Update(ShellEntity shellEntity)
         {
-            mongoDbClientFactory.GetMongoCollection<ShellEntity>()
-                .UpdateOne(new FilterDefinitionBuilder<ShellEntity>().Where(a => a.Id == shellEntity.Id),
-                    new ObjectUpdateDefinition<ShellEntity>(shellEntity));
+            await mongoDbClientFactory.GetMongoCollection<ShellEntity>()
+                .ReplaceOneAsync(new FilterDefinitionBuilder<ShellEntity>().Where(a => a.Id == shellEntity.Id),
+                    shellEntity);
         }
 
         public List<ShellEntity> GetAll()
