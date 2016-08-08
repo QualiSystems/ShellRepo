@@ -22,7 +22,7 @@ ShellRepo supports rich RESTfull API, which enables different clients to interac
 
 ## Credits
 
-ShellRepo is genersously hosted on [AppHarbor](http://appharbor.com) infrastructure 
+ShellRepo is generously hosted on [AppHarbor](http://appharbor.com) infrastructure 
 
 ## License
 
