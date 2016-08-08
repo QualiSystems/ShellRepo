@@ -51,7 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QpmServer\ShellRepo.csproj">
+    <ProjectReference Include="..\ShellRepo\ShellRepo.csproj">
       <Project>{BC2B5D20-A6EB-495D-851A-63B9C03B5E20}</Project>
       <Name>ShellRepo</Name>
     </ProjectReference>

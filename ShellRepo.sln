@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25402.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo", "QpmServer\ShellRepo.csproj", "{BC2B5D20-A6EB-495D-851A-63B9C03B5E20}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo.Tests", "QpmServer.Tests\ShellRepo.Tests.csproj", "{85D5BEDF-7DAA-4495-B795-55121971EDB4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CD8DCB11-76B1-4327-96D2-977E2FBBF425}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo", "ShellRepo\ShellRepo.csproj", "{BC2B5D20-A6EB-495D-851A-63B9C03B5E20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellRepo.Tests", "ShellRepo.Tests\ShellRepo.Tests.csproj", "{85D5BEDF-7DAA-4495-B795-55121971EDB4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
