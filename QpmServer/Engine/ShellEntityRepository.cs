@@ -14,11 +14,12 @@ namespace ShellRepo.Engine
         ShellEntity Find(string shellName);
         void Insert(ShellEntity shellEntity);
         void Update(ShellEntity shellEntity);
-        List<ShellEntity> GetAll();
+        List<ShellEntity> GetAll(int? pageNumber);
     }
 
     public class ShellEntityRepository : IShellEntityRepository
     {
+        private const int PageSize = 20;
         private readonly IMongoDbClientFactory mongoDbClientFactory;
 
         public ShellEntityRepository(IMongoDbClientFactory mongoDbClientFactory)
@@ -70,10 +71,17 @@ namespace ShellRepo.Engine
                     shellEntity);
         }
 
-        public List<ShellEntity> GetAll()
+        public List<ShellEntity> GetAll(int? pageNumber)
         {
+            var findOptions = new FindOptions<ShellEntity>
+            {
+                BatchSize = PageSize,
+                Skip = PageSize * pageNumber
+            };
+
             return mongoDbClientFactory.GetMongoCollection<ShellEntity>()
-                .FindSync(new FilterDefinitionBuilder<ShellEntity>().Empty)
+                .FindSync(new FilterDefinitionBuilder<ShellEntity>().Empty, 
+                findOptions)
                 .ToList();
         }
     }

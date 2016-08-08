@@ -10,7 +10,7 @@
         return {
 
             getAllShells: function () {
-                return $http.get('api/shell/all');
+                return $http.get('api/shells');
             }
 
         };

@@ -13,6 +13,7 @@ namespace ShellRepo.Engine
         Task Add(ShellContentEntity shellEntity);
         List<ShellContentEntity> Find(string shellName, Version version = null);
         void IncrementDownloadCount(ObjectId shellContentEntityId);
+        List<ShellContentEntity> GetShellContentEntities(string shellName);
     }
 
     public class ShellContentEntityRepository : IShellContentEntityRepository
@@ -45,6 +46,14 @@ namespace ShellRepo.Engine
             return mongoDbClientFactory.GetMongoCollection<ShellContentEntity>()
                 .FindSync(new FilterDefinitionBuilder<ShellContentEntity>()
                     .Where(expression))
+                .ToList();
+        }
+
+        public List<ShellContentEntity> GetShellContentEntities(string shellName)
+        {
+            return mongoDbClientFactory.GetMongoCollection<ShellContentEntity>()
+                .FindSync(new FilterDefinitionBuilder<ShellContentEntity>()
+                    .Where(s => s.Name == shellName))
                 .ToList();
         }
 

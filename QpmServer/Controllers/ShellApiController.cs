@@ -14,38 +14,35 @@ namespace ShellRepo.Controllers
     public class ShellApiController : ApiController
     {
         private readonly ISearchingService searchingService;
+        private readonly IShellContentEntityRetriever shellContentEntityRetriever;
         private readonly IShellEntityContentDownloader shellEntityContentDownloader;
-        private readonly IShellEntityFinder shellEntityFinder;
+        private readonly IShellEntityRetriever shellEntityRetriever;
         private readonly IShellUploader shellUploader;
         private readonly IWebErrorLogger webErrorLogger;
 
         public ShellApiController(IWebErrorLogger webErrorLogger,
-            IShellEntityContentDownloader shellEntityContentDownloader, 
+            IShellEntityContentDownloader shellEntityContentDownloader,
             IShellUploader shellUploader,
-            IShellEntityFinder shellEntityFinder, 
-            ISearchingService searchingService)
+            IShellEntityRetriever shellEntityRetriever,
+            ISearchingService searchingService, 
+            IShellContentEntityRetriever shellContentEntityRetriever)
         {
             this.webErrorLogger = webErrorLogger;
             this.shellEntityContentDownloader = shellEntityContentDownloader;
             this.shellUploader = shellUploader;
-            this.shellEntityFinder = shellEntityFinder;
+            this.shellEntityRetriever = shellEntityRetriever;
             this.searchingService = searchingService;
+            this.shellContentEntityRetriever = shellContentEntityRetriever;
         }
 
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("api/shell/list/{shellName}/{version?}")]
-        public IHttpActionResult List(string shellName, string version = null)
+        [Route("api/shells/versions/{shellName}")]
+        public IHttpActionResult GetShellVersions(string shellName)
         {
             try
             {
-                Version versionObject = null;
-                if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
-                {
-                    return BadRequest(string.Format("Invalid version provided '{0}'", version));
-                }
-
-                var shellEntities = shellEntityFinder.FindShellEntities(shellName, versionObject);
+                var shellEntities = shellContentEntityRetriever.GetShellContentDtos(shellName);
 
                 return Json(shellEntities);
             }
@@ -58,12 +55,20 @@ namespace ShellRepo.Controllers
 
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("api/shell/all")]
-        public IHttpActionResult GetAllList()
+        [Route("api/shells")]
+        public IHttpActionResult GetShellEntitiesFirstPage()
+        {
+            return GetShellEntitiesPage(0);
+        }
+
+        [AcceptVerbs("GET")]
+        [HttpGet]
+        [Route("api/shells/page/{pageNumber}")]
+        public IHttpActionResult GetShellEntitiesPage(int pageNumber)
         {
             try
             {
-                var shellEntities = shellEntityFinder.GetAll();
+                var shellEntities = shellEntityRetriever.GetShellEntitiesWithPaging(pageNumber);
 
                 return Json(shellEntities);
             }
@@ -76,7 +81,7 @@ namespace ShellRepo.Controllers
 
         [AcceptVerbs("GET")]
         [HttpGet]
-        [Route("api/shell/search/{text}")]
+        [Route("api/shells/search/{text}")]
         public IHttpActionResult Search(string text)
         {
             try
@@ -93,7 +98,7 @@ namespace ShellRepo.Controllers
         }
 
         [HttpPost]
-        [Route("api/shell/upload")]
+        [Route("api/shells")]
         public async Task<HttpResponseMessage> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
@@ -135,8 +140,15 @@ namespace ShellRepo.Controllers
         }
 
         [HttpGet]
-        [Route("api/shell/download/{shellName}/{version?}")]
-        public HttpResponseMessage Download(string shellName, string version = null)
+        [Route("api/shells/download/{shellName}")]
+        public HttpResponseMessage DownloadLatestVersion(string shellName)
+        {
+            return DownloadSpecificVersion(shellName, string.Empty);
+        }
+
+        [HttpGet]
+        [Route("api/shells/download/{shellName}/{version}")]
+        public HttpResponseMessage DownloadSpecificVersion(string shellName, string version)
         {
             Version versionObject = null;
             if (!string.IsNullOrEmpty(version) && !Version.TryParse(version, out versionObject))
