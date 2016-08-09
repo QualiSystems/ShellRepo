@@ -6,7 +6,7 @@ ShellRepo supports TOSCA based shells and is powered by [Toscana](http://github.
 
 ## Website
 
-ShellRepo is availbale at http://shellrepo.apphb.com
+ShellRepo is availbale at [https://shellrepo.apphb.com](https://shellrepo.apphb.com)
 
 ## REST API
 
